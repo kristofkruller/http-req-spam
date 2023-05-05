@@ -5,7 +5,7 @@ import threading
 import random
 import re
 import datetime
-import logging
+# import logging
 
 #global params
 url=''
@@ -3462,16 +3462,16 @@ def httpcall(url):
 
 	except urllib.error.HTTPError as e:
 		#print e.code
-		logging.error(f"HTTP Error {e.code}: {e.reason} {e.read().decode('utf-8')}")
+		print(f"HTTP Error {e.code}: {e.reason} {e.read().decode('utf-8')}")
 		set_flag(1)
 		code=500
 	except urllib.error.URLError as e:
 		#print e.reason
-		logging.error(f"URL Error {e.code}: {e.reason}")
+		print(f"URL Error {e.code}: {e.reason}")
 		sys.exit()
 	else:
 		inc_counter()
-		logging.info(f"Request succeeded - URL: {url}")
+		print(f"Request succeeded - URL: {url}")
 		urllib.request.urlopen(request)
 		# urllib.request.urlopen(request, timeout=5)
 	return(code)		
@@ -3493,24 +3493,25 @@ class MonitorThread(threading.Thread):
     def run(self):
         previous = request_counter
         start_time = datetime.datetime.now()
-        logging.info(f"MonitorThread started at {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"MonitorThread started at {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
         while flag == 0:
 			# +100 ensures that the console is not flooded with messages and counter has actually changed since the last print statement.
 			# if (previous + 100 < request_counter) and (previous != request_counter):
             if (previous + 100 < request_counter) and (previous != request_counter):
                 previous = request_counter
-                logging.info(f"{request_counter:,d} requests sent so far")
 
         end_time = datetime.datetime.now()
         elapsed_time = round((end_time - start_time).total_seconds(), 3)
-        logging.info(f"MonitorThread stopped at {end_time.strftime('%Y-%m-%d %H:%M:%S')}, ran for {elapsed_time} seconds")
+        print(f"MonitorThread stopped at {end_time.strftime('%Y-%m-%d %H:%M:%S')}, ran for {elapsed_time} seconds")
 	
 #execute 
 if len(sys.argv) < 2:
+	print('argv less than two')
 	sys.exit()
 else:
 	if sys.argv[1]=="help":
+		print('argv help')
 		sys.exit()
 	else:
 		if len(sys.argv)== 3:
@@ -3526,9 +3527,9 @@ else:
 			print('Invalid URL')
 			sys.exit(1)
 		for i in range(700):
+			# print(i)
 			t = HTTPThread()
 			t.start()
-		t = MonitorThread()
+		# t = MonitorThread()
 		t.start()
-
-	
+		print(f"{request_counter:,d} requests sent so far")
