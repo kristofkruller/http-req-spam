@@ -3531,5 +3531,5 @@ else:
 			t = HTTPThread()
 			t.start()
 		# t = MonitorThread()
-		t.start()
+		# t.start()
 		print(f"{request_counter:,d} requests sent so far")
